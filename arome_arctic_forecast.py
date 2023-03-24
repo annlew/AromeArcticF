@@ -73,7 +73,7 @@ def plot_surface_pressure(dods_file,forecasts,forecast_length):
    filename = "https://thredds.met.no/thredds/dodsC/"+dods_file
    #filename = "https://thredds.met.no/thredds/dodsC/metpparchive/2021/08/01/met_analysis_1_0km_nordic_20210801T12Z.nc"
    #filename = "https://thredds.met.no/thredds/dodsC/aromearcticlatest/archive/arome_arctic_det_2_5km_20230301T09Z.nc"
-   filename = "../arome_arctic_det_2_5km_20230301T09Z.nc"
+   #filename = "../arome_arctic_det_2_5km_20230301T09Z.nc"
 
    ncfile   = netCDF4.Dataset(filename)
    
@@ -127,136 +127,61 @@ def plot_surface_pressure(dods_file,forecasts,forecast_length):
 
 
 
+
+
 def main():
 
    # Fetch user settings 
    forecasts, forecast_length = user_settings()
-   i=0
 
    old_time='2023-03-03T10:06:33Z'
    old_time=''
-   update=True
- 
-   try:
-      #while True:
-      while update:
-        print('Hello',i)
-        time.sleep(10)
 
-    
-        interval_start='10:00:00'
-        interval_stop='10:30:00'
-        FMT = '%H:%M:%S'
-
-        now=datetime.now()
-        
-        current_time = now.strftime("%H:%M:%S")
-        print("Current Time =", current_time)
-        
-        if now > datetime.strptime(interval_start,FMT) and now<datetime.strptime(interval_stop,FMT):
-           print ('not late')
-        else:
-           print ('late')
-
-
-#   except KeyboardInterrupt:
-#    print('interrupted!')
-
-   # Load the latest catalogue 
-        load_catalog()
-
-
-   # Parse xml file and fetch filename for OPeNDAP
-        forecast_file,update_time = parseXML('catalog.xml')
-
-        print ('update_time')
-        print ('update_time')
-        print ('update_time')
-        print (update_time)
-
-        print (old_time)
-
-        if not fnmatch.fnmatch(update_time, old_time):
-            print ('no match!')
-            update=False
-
-        old_time=update_time
-        
-        i=i+1
-   except KeyboardInterrupt:
-      print('interrupted!')
-
-   # Plot field
-   plot_surface_pressure(forecast_file,forecasts,forecast_length)
-
-
-def main_test():
-
-   # Fetch user settings 
-   forecasts, forecast_length = user_settings()
-   i=0
-
-
-   old_time='2023-03-03T10:06:33Z'
-   old_time=''
-   interval_start=todayAt(13,min=18)
-   interval_stop='18:50:00'
-
-
-   FMT = '%H:%M:%S'
  
    try:
       while True:
 
          update=True
          now=datetime.now()
+         interval_start=todayAt(10,min=1)
+         interval_stop =todayAt(10,min=30)
+
+         # just for printing
          current_time = now.strftime("%H:%M:%S")
          print("Current Time =", current_time)
          start_time = interval_start.strftime("%H:%M:%S")  
          print("Start Time =", start_time)
-
      
-         if now > interval_start:
-            print ('not late')
+         if now > interval_start and now < interval_stop:
 
-
-            while update:
-               print('Hello',i)
-               time.sleep(10)
-
+            while update and now < interval_stop:
 
                # Load the latest catalogue 
                load_catalog()
 
-
                # Parse xml file and fetch filename for OPeNDAP
                forecast_file,update_time = parseXML('catalog.xml')
 
-               print ('update_time')
-               print ('update_time')
-               print ('update_time')
-               print (update_time)
-
+               print ('update time',update_time)
                print ('old time: ',old_time)
 
+               # If there is a new file, break loop and plot. Return to main loop         
                if not fnmatch.fnmatch(update_time, old_time):
                    print ('no match!')
                    update=False
+                   
+                   # Send plot request when new data is available 
+                   plot_surface_pressure(forecast_file,forecasts,forecast_length)
 
                old_time=update_time
-        
-               i=i+1
-
-            plot_surface_pressure(forecast_file,forecasts,forecast_length)
+               now=datetime.now()
+               time.sleep(10)
 
          else:
-
             time.sleep(10)
    except KeyboardInterrupt:
       print('interrupted!')
 
-   # Plot field
-   #plot_surface_pressure(forecast_file,forecasts,forecast_length)
 
 
 
@@ -279,7 +204,7 @@ def main_dev_plot_test():
 if __name__ == "__main__":
   
    # calling main function
-   main_test()
+   main()
    #main_dev_plot_test()
 
 
