@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pylab as plt
 from datetime import datetime,timezone
 import cartopy.crs as ccrs
-import pyproj
+#import pyproj
 
 #def user_settings():
 #
