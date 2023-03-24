@@ -9,40 +9,40 @@ def parse_archive(xml_in):
 
 
    print ('start archive')
-   print ()
-   print ()
-   print ()
+   #print ()
+   #print ()
+   #print ()
    for child in root.findall('{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}dataset'):
-      print (1)
-      print (child)
+      #print (1)
+      #print (child)
       item=child.find('name')
-      print (item)
+      #print (item)
       for grandchild in child.findall('{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}dataset'):
-         print ('grandchild')
-         print (grandchild)
-         print ('grandchild.attrib')
-         print (grandchild.attrib)
-         print ('grandchild.tag')
-         print (grandchild.tag)
-         print ('grandchild.attrib[name]')
-         print (grandchild.attrib['name'])
+         #print ('grandchild')
+         #print (grandchild)
+         #print ('grandchild.attrib')
+         #print (grandchild.attrib)
+         #print ('grandchild.tag')
+         #print (grandchild.tag)
+         #print ('grandchild.attrib[name]')
+         #print (grandchild.attrib['name'])
          if fnmatch.fnmatch(grandchild.attrib['name'], '*det*latest*'):
-            print( grandchild.attrib['name'])
-            print( grandchild.attrib['ID'])
-            print('HHHHHHHHHHHHHHHHH')
+            #print( grandchild.attrib['name'])
+            #print( grandchild.attrib['ID'])
+            #print('HHHHHHHHHHHHHHHHH')
             file_f=grandchild.attrib['ID']
 
             for grandgrandchild in grandchild.findall('{http://www.unidata.ucar.edu/namespaces/thredds/InvCatalog/v1.0}date'):
-               print ('grandgrandchild.attrib[]')
-               print (grandgrandchild)
-               print (grandgrandchild.attrib)
-               print (grandgrandchild.attrib['type'])
-               #print (grandgrandchild.text.encode('utf8'))
-               print (grandgrandchild.text)
-               #update_time = grandgrandchild.text.encode('utf8')
+               #print ('grandgrandchild.attrib[]')
+               #print (grandgrandchild)
+               #print (grandgrandchild.attrib)
+               #print (grandgrandchild.attrib['type'])
+               ##print (grandgrandchild.text.encode('utf8'))
+               #print (grandgrandchild.text)
+               ##update_time = grandgrandchild.text.encode('utf8')
                update_time = grandgrandchild.text
-               print(update_time)
-               print('end')
+               #print(update_time)
+               #print('end')
 
                break
 

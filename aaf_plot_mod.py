@@ -113,7 +113,7 @@ def plot_pw_rotated_grid_separate(x,y,var,time,nfigs,units,long_name):
       ax[i].coastlines()
 
       date[i]=datetime.fromtimestamp(time[i],tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-      datet[i]=datetime.fromtimestamp(time[i],tz=timezone.utc).strftime("%Y-%m-%d_ %H:%M")
+      datet[i]=datetime.fromtimestamp(time[i],tz=timezone.utc).strftime("%Y-%m-%d_%H:%M")
 
       cf[i]=ax[i].contourf(x, y, var[i,:,:], levels=levs,transform=ccrs.PlateCarree())
       cp[i]=ax[i].contour(x, y, var[i,:,:], levels=levs,colors='k',linewidths=.5,transform=ccrs.PlateCarree())

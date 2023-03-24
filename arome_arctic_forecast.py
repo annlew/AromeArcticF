@@ -52,7 +52,7 @@ def plot_surface_pressure(dods_file,forecasts,forecast_length):
    timestep  = ncfile.variables["time"][0:(forecasts+1)*forecast_length:forecast_length]
 
    # Fetch variables
-   var_list=variable_list()
+   var_list=VariableList()
    
    var = np.empty((len(var_list),forecasts+1,len(y),len(x)))
    unit={} 
@@ -100,7 +100,9 @@ def plot_surface_pressure(dods_file,forecasts,forecast_length):
 def main():
 
    # Fetch user settings 
-   forecasts, forecast_length = user_settings()
+   forecasts, forecast_length = ForecastSettings()
+   BeginHour,BeginMin,EndHour,EndMin = FetchTime()
+
 
    old_time='2023-03-03T10:06:33Z'
    old_time=''
@@ -111,8 +113,8 @@ def main():
 
          update=True
          now=datetime.now()
-         interval_start=todayAt(10,min=1)
-         interval_stop =todayAt(10,min=30)
+         interval_start=todayAt(BeginHour,min=BeginMin)
+         interval_stop =todayAt(EndHour,min=EndMin)
 
          # just for printing
          current_time = now.strftime("%H:%M:%S")
@@ -143,10 +145,10 @@ def main():
 
                old_time=update_time
                now=datetime.now()
-               time.sleep(60)
+               time.sleep(10)
 
          else:
-            time.sleep(60*25)
+            time.sleep(10)
    except KeyboardInterrupt:
       print('interrupted!')
 
@@ -157,7 +159,7 @@ def main():
 def main_dev_plot_test():
 
    # Fetch user settings 
-   forecasts, forecast_length = user_settings()
+   forecasts, forecast_length = ForecastSettings()
 
    # Load the latest catalogue 
    #load_catalog()
