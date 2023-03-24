@@ -31,38 +31,6 @@ def parseXML(xmlfile):
    tree=ET.parse(xmlfile)
    root= tree.getroot()
    
-#   print('my root')
-#   print(root)
-#   print( len(root))
-#   
-#   print('root tag')
-#   print(root.tag)
-#   
-#   print('root tags')
-#   print(root.tag[:])
-#   
-#   print('root[0] and [1]')
-#   print (root[0])
-#   print (root[1])
-#   
-#   print('child tags')
-#   # You can iterate over an element's children.
-#   for child in root:
-#       print('child.tag')
-#       print(child.tag)
-#       print('child.attrib')
-#       print(child.attrib)
-#   
-#   for child in root:
-#       print('child.text')
-#       print(child.text)
-#   
-#   print ('root attributes')
-#   print(root.attrib)
-   
-
-
-
    return file_f,update_time
 
 
@@ -175,10 +143,10 @@ def main():
 
                old_time=update_time
                now=datetime.now()
-               time.sleep(10)
+               time.sleep(60)
 
          else:
-            time.sleep(10)
+            time.sleep(60*25)
    except KeyboardInterrupt:
       print('interrupted!')
 
