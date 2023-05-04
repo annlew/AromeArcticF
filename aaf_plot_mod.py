@@ -4,7 +4,7 @@ from datetime import datetime,timezone
 import cartopy.crs as ccrs
 import matplotlib.dates as mdates
 #import pyproj
-
+import os
 
 
 def get_variable():
@@ -92,6 +92,7 @@ def plot_TZ(x,y,var,time,nfigs,Tp,Zp,Tml,Psl,lwe,prec):
    fig={}
    date={}   
    datet={}   
+   datef={}   
 
    for i in range(nfigs):
       fig[i],ax[i]=plt.subplots(1,1,subplot_kw=dict(projection=ccrs.RotatedPole(pole_longitude=155.0, pole_latitude=15.0)))
@@ -101,6 +102,7 @@ def plot_TZ(x,y,var,time,nfigs,Tp,Zp,Tml,Psl,lwe,prec):
 
       date[i]=datetime.fromtimestamp(time[i],tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
       datet[i]=datetime.fromtimestamp(time[i],tz=timezone.utc).strftime("%Y-%m-%d_%H:%M")
+      datef[i]=datetime.fromtimestamp(time[i],tz=timezone.utc).strftime("%Y%m%d_%H")
       if Tp or Tml:
          cf[i]=ax[i].contourf(x, y, var[0,i,:,:]-T0, levels=levsT,transform=ccrs.PlateCarree())
       else:
@@ -130,18 +132,22 @@ def plot_TZ(x,y,var,time,nfigs,Tp,Zp,Tml,Psl,lwe,prec):
       fig[i].tight_layout()
 
 
+      dirName='../../artofmelt/AromeArctic/'+datef[0]
+      if not os.path.exists(dirName):
+         os.makedirs(dirName)
+
       if (Tp!=None and Zp!=None):
          cb[i].ax.set_title('Geopotential height [dam] '+str(Zp)+'hPa\n Temperature [$^{\circ}$C] '+str(Tp)+'hPa')
-         fig[i].savefig('Arome_Arctic_T'+str(Tp)+'Z'+str(Zp)+'_'+datet[0]+'_'+datet[i]+'.png')
+         fig[i].savefig(dirName+'/Arome_Arctic_T'+str(Tp)+'Z'+str(Zp)+'_'+datet[0]+'_'+datet[i]+'.png')
       if (Tml != None and Psl != None):
          cb[i].ax.set_title('MSLP [hPa] \n Temperature [$^{\circ}$C] lowest model level')
-         fig[i].savefig('Arome_Arctic_Tml'+str(Tml)+'MSLP_'+datet[0]+'_'+datet[i]+'.png')
+         fig[i].savefig(dirName+'/Arome_Arctic_Tml'+str(Tml)+'MSLP_'+datet[0]+'_'+datet[i]+'.png')
       if (lwe != None and Psl != None):
          cb[i].ax.set_title('MSLP [hPa] \n Precipitable water [m]')
-         fig[i].savefig('Arome_Arctic_Precipitablewater_MSLP_'+datet[0]+'_'+datet[i]+'.png')
+         fig[i].savefig(dirName+'/Arome_Arctic_Precipitablewater_MSLP_'+datet[0]+'_'+datet[i]+'.png')
       if (prec != None and Psl != None):
          cb[i].ax.set_title('MSLP [hPa] \n Accumulated precipitation [kg/m^2]')
-         fig[i].savefig('Arome_Arctic_Precip_MSLP_'+datet[0]+'_'+datet[i]+'.png')
+         fig[i].savefig(dirName+'/Arome_Arctic_Precip_MSLP_'+datet[0]+'_'+datet[i]+'.png')
       #fig[i].savefig('AArome_Arctic_'+long_name.replace(" ", "")+'_'+datet[0]+'_'+datet[i]+'.png')
 
 
