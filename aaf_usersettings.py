@@ -8,10 +8,10 @@ def ForecastSettings():
    url='https://thredds.met.no/thredds/catalog/aromearcticlatest/archive/catalog.xml'
 
    # Number of forecast to display in addition to anlaysis
-   forecasts=2
+   forecasts=11
 
    # forecast interval length in hours
-   forecast_length=3
+   forecast_length=6
 
    #-----------------------------------------
 
@@ -26,10 +26,9 @@ def ForecastPointPosition():
    position= [15, 78]
    positiond= {("point1","lat"):15,("point2","lat"): 11.53,
                ("point1","lon"):78,("point2","lon"): 78.54  }
-
-   positiond2 = { 'point1':   {'lat': 78,    'lon':15    },
+   positiond2 = { 'Oden':     {'lat': 78.91, 'lon':7.70    },
+                  'Oden2':    {'lat': 79.75, 'lon':4.68    },
                   'zeppelin': {'lat': 78.54, 'lon': 11.53}}
-
 
    return position,positiond2
 
@@ -40,7 +39,6 @@ def VariableListPoint():
    variables=['specific_humidity_pl',
               'air_temperature_pl']
    return variables
-   
 
 def VariableListMap():
    # Variables for map plots
@@ -49,7 +47,6 @@ def VariableListMap():
               'SFX_SIC']
    return variables
 
-
 def VariableListTZMap():
    # Variables for temperature geopotential height map plots
    variables=['air_temperature_pl', 
@@ -57,14 +54,12 @@ def VariableListTZMap():
               'SFX_SIC']
    return variables
 
-
 def VariableListTPMap():
    # Variables for temperature mslp map plots
    variables=['air_temperature_ml', 
               'air_pressure_at_sea_level',
               'SFX_SIC']
    return variables
-
 
 def VariableListPWMap():
    # Variables for map plots
@@ -82,9 +77,9 @@ def VariableListPrecMap():
 
 def FetchTime():
     # provide fetch time interval in 24h format
-    BeginHour=18
-    BeginMin =1
-    EndHour  =18
-    EndMin   =20
+    BeginHour=10
+    BeginMin =0
+    EndHour  =10
+    EndMin   =59
   
     return BeginHour,BeginMin,EndHour,EndMin

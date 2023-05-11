@@ -5,7 +5,7 @@ import cartopy.crs as ccrs
 import matplotlib.dates as mdates
 #import pyproj
 import os
-
+import subprocess
 
 def get_variable():
    print ('hello')   
@@ -57,11 +57,11 @@ def plot_TZ(x,y,var,time,nfigs,Tp,Zp,Tml,Psl,lwe,prec):
       if Zp==500:
          pstartZ=480.
          pstopZ=600.
-         pstepZ=4.
+         pstepZ=2.
       elif Psl ==1:
          pstartZ=800.
          pstopZ=1040.
-         pstepZ=4.
+         pstepZ=2.
       else:
          pstartZ=np.nanmin(var[1]/g)
          pstopZ=np.nanmax(var[1]/g)
@@ -101,8 +101,8 @@ def plot_TZ(x,y,var,time,nfigs,Tp,Zp,Tml,Psl,lwe,prec):
       ax[i].coastlines()
 
       date[i]=datetime.fromtimestamp(time[i],tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-      datet[i]=datetime.fromtimestamp(time[i],tz=timezone.utc).strftime("%Y-%m-%d_%H:%M")
-      datef[i]=datetime.fromtimestamp(time[i],tz=timezone.utc).strftime("%Y%m%d_%H")
+      datet[i]=datetime.fromtimestamp(time[i],tz=timezone.utc).strftime("%Y%m%d_%H")
+      datef[i]=datetime.fromtimestamp(time[i],tz=timezone.utc).strftime("%Y%m%d_00")
       if Tp or Tml:
          cf[i]=ax[i].contourf(x, y, var[0,i,:,:]-T0, levels=levsT,transform=ccrs.PlateCarree())
       else:
@@ -139,19 +139,26 @@ def plot_TZ(x,y,var,time,nfigs,Tp,Zp,Tml,Psl,lwe,prec):
       if (Tp!=None and Zp!=None):
          cb[i].ax.set_title('Geopotential height [dam] '+str(Zp)+'hPa\n Temperature [$^{\circ}$C] '+str(Tp)+'hPa')
          fig[i].savefig(dirName+'/Arome_Arctic_T'+str(Tp)+'Z'+str(Zp)+'_'+datet[0]+'_'+datet[i]+'.png')
+         fig[i].clf()
+         plt.close(fig[i])
       if (Tml != None and Psl != None):
          cb[i].ax.set_title('MSLP [hPa] \n Temperature [$^{\circ}$C] lowest model level')
          fig[i].savefig(dirName+'/Arome_Arctic_Tml'+str(Tml)+'MSLP_'+datet[0]+'_'+datet[i]+'.png')
+         fig[i].clf()
+         plt.close(fig[i])
       if (lwe != None and Psl != None):
          cb[i].ax.set_title('MSLP [hPa] \n Precipitable water [m]')
          fig[i].savefig(dirName+'/Arome_Arctic_Precipitablewater_MSLP_'+datet[0]+'_'+datet[i]+'.png')
+         fig[i].clf()
+         plt.close(fig[i])
       if (prec != None and Psl != None):
          cb[i].ax.set_title('MSLP [hPa] \n Accumulated precipitation [kg/m^2]')
          fig[i].savefig(dirName+'/Arome_Arctic_Precip_MSLP_'+datet[0]+'_'+datet[i]+'.png')
+         fig[i].clf()
+         plt.close(fig[i])
       #fig[i].savefig('AArome_Arctic_'+long_name.replace(" ", "")+'_'+datet[0]+'_'+datet[i]+'.png')
 
-
-
+      #subprocess.call(['rclone', 'copy', '--ignore-existing', dirName ,  'remote_box:artofmelt/'+datef[0]+'/Arome'])
 
 
 def plot2(figin,axin,x,y,var,time):
@@ -224,6 +231,473 @@ def plot_point(t,z,var,lat,lon,nfigs,units,long_name):
       ax[i].set_title(long_name+' Production time '+date+' lat '+str('%.2f'%lat)+' lon '+str('%.2f'%lon))
    
       fig[i].savefig('Arome_Arctic_'+str('%.2f'%lat)+'_'+str('%.2f'%lon)+'_'+long_name.replace(" ", "")+'_'+datet+'.png')
+
+
+def plot_pointZq(t,z,var,var_aux,var_aux2,lat,lon,nfigs):
+
+
+   pstart=0.
+   pstop=5.
+   pstep=0.2
+
+   steps=int((pstop-pstart)/pstep)
+   levs= np.linspace(pstart,pstop,num=steps+1, endpoint=True)
+
+   date=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+   datet=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y-%m-%d_%H:%M")
+   datef=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y%m%d_%H")
+
+   dateo=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y%m%d_00")
+
+   func = np.vectorize(datetime.utcfromtimestamp)
+   t_ax=func(t)
+
+   print('nfigs',nfigs)
+
+   print(t_ax.shape)
+   print(z.shape)
+   print(var.shape)
+   print(lon)
+   print(lat)
+
+   ax={}
+   ax2={}
+   cf={}
+   cp={}
+   cb={}
+   fig={}
+   for i in range(nfigs):
+      print(i) 
+      fig[i],ax=plt.subplots(2,2,gridspec_kw={'width_ratios': [4, 1], 'height_ratios': [3,1]},constrained_layout=True)
+      #cf[i]=ax[i].contourf(t_ax,z[:,0,i,i], var[:,:,i,i].T)
+      cf[0,0]=ax[0,0].contourf(t_ax,z, var[:,:,i].T,levels=levs)
+      #plt.gca().invert_yaxis()
+
+
+      #cf[i]=ax[i].tricontourf(t,z, var[:,:,i,i], levels=14, cmap="RdBu_r")
+   
+      fig[i].set_size_inches(12,8, forward=True)
+   
+      #fig[i].tight_layout(rect=[0.02,0.05 ,1.0 ,0.95])
+
+
+
+   
+      cb[0,0] = plt.colorbar(cf[0,0],ax=ax[0,0],orientation='vertical',pad=-0.01)#, shrink=0.6)
+      #cb[0,0] = fig[i].colorbar(cf[0,0],orientation='vertical')#, shrink=0.6)
+      cb[0,0].ax.set_title('g/kg')
+
+      cmap='nipy_spectral'
+      cf[0,0].set_cmap(cmap)
+
+      Day_Locator= mdates.DayLocator() 
+      Hour_Locator= mdates.HourLocator(interval=6) 
+      formatter = mdates.ConciseDateFormatter(Day_Locator)
+      minformatter = mdates.ConciseDateFormatter(Day_Locator)
+      ax[0,0].xaxis.set_minor_locator(Hour_Locator) 
+      ax[0,0].xaxis.set_major_locator(Day_Locator) 
+      #ax[0,0].xaxis.set_major_formatter(formatter)
+      #ax[0,0].xaxis.set_minor_formatter(formatter)
+   
+      ax[0,0].set_ylabel('height [m]')
+      ax[0,0].set_xticklabels([])
+      #ax[0,0].set_xlabel('time')
+      ax[0,0].grid(axis='x', color='dimgrey',which='minor', linestyle='--') 
+      ax[0,0].grid(axis='y', color='dimgrey', linestyle='--') 
+      ax[0,0].set_title('Specific humidity Production time '+date+' lat '+str('%.2f'%lat[i])+' lon '+str('%.2f'%lon[i]))
+
+   
+      q1,=ax[0,1].plot( var[0,:,i],z,label='00')
+      q2,=ax[0,1].plot( var[24,:,i],z,'r',label='24')
+      q3,=ax[0,1].plot( var[48,:,i],z,'y',label='48')
+      q4,=ax[0,1].plot( var[-1,:,i],z,'k',label='66')
+      ax[0,1].legend(handles=[q1,q2,q3,q4],loc='lower right', bbox_to_anchor=(1, 1),ncol=2)
+
+      ax[0,1].set_xlim(0,5)
+      ax[0,1].set_ylim(0,z[-1])
+      ax[0,1].set_xlabel('q [g/kg]')
+       
+      ax[0,1].grid(axis='y', color='dimgrey', linestyle='--') 
+      ax[0,1].grid(axis='x', color='dimgrey', linestyle='--') 
+      ax[0,1].set_yticklabels([])
+
+      p1,=ax[1,0].plot(t_ax, var_aux[:,i,i],'k',label='precipitation')
+
+
+      #ax[1,0].xaxis.set_minor_locator(Hour_Locator) 
+      #ax[1,0].xaxis.set_major_locator(Day_Locator) 
+      #ax[1,0].xaxis.set_major_formatter(formatter)
+      #ax[1,0].xaxis.set_minor_formatter(formatter)
+      ax[1,0].set_xlabel('time')
+      #ax[1,0].set_xlim(t_ax[0],t_ax[-1])
+      ax[1,0].set_ylim(0,max(var_aux[:,i,i]))
+      ax[1,0].set_ylabel('precipitation [mm]')
+
+
+      Day_Locator= mdates.DayLocator() 
+      Hour_Locator= mdates.HourLocator(interval=6) 
+      formatter = mdates.ConciseDateFormatter(Day_Locator)
+      minformatter = mdates.ConciseDateFormatter(Day_Locator)
+      #ax[1,0].xaxis.set_minor_locator(Hour_Locator) 
+      #ax[1,0].xaxis.set_major_locator(Day_Locator) 
+      #ax[1,0].xaxis.set_major_formatter(formatter)
+      #ax[1,0].xaxis.set_minor_formatter(formatter)
+
+
+      ax[1,0].grid(axis='x', color='dimgrey',which='minor', linestyle='--') 
+      ax[1,0].grid(axis='y', color='dimgrey', linestyle='--') 
+
+      ax2 = ax[1,0].twinx()
+      p2,=ax2.plot(t_ax, var_aux2[:,i],'darkblue',label='cloud water')
+      ax2.set_ylabel('cloud water [kg/m2]',color='darkblue')
+      ax2.set_ylim(0,np.max(var_aux2[:,i]))
+      ax2.set_xlim(t_ax[0],t_ax[-1])
+      ##ax2.set_xticklabels([])
+      ax2.grid(axis='y', color='cornflowerblue', linestyle='--') 
+      #ax2.yaxis.label.set_color('darkblue')
+      ax2.tick_params(axis='y', colors='darkblue')
+
+      ax2.xaxis.set_minor_locator(Hour_Locator) 
+      ax2.xaxis.set_major_locator(Day_Locator) 
+      ax2.xaxis.set_major_formatter(formatter)
+      ax2.xaxis.set_minor_formatter(formatter)
+
+      #ax2.legend(handles=[p1,p2],loc='center left', bbox_to_anchor=(1.2, 0.5))
+
+      ax[-1, -1].axis('off')
+
+
+      dirName='../../artofmelt/AromeArctic/'+dateo
+      if not os.path.exists(dirName):
+         os.makedirs(dirName)
+   
+      #fig[i].savefig('Arome_Arctic_'+str('%.2f'%lat)+'_'+str('%.2f'%lon)+'_'+long_name.replace(" ", "")+'_'+datet+'.png')
+      fig[i].savefig(dirName+'/Arome_Arctic_ZQ_'+datef+'_'+str('%.2f'%lat[i])+'_'+str('%.2f'%lon[i])+'.png')
+
+      fig[i].clf()
+      plt.close(fig[i])
+
+
+
+
+      #subprocess.call(['rclone', 'copy', '--ignore-existing', dirName ,  'remote_box:artofmelt/'+datef[0]+'/Arome'])
+
+
+
+def plot_pointZt(t,z,var,var_aux,var_aux2,lat,lon,nfigs):
+
+
+   pstart=-32.
+   pstop=30.
+   pstep=2.
+
+   steps=int((pstop-pstart)/pstep)
+   levs= np.linspace(pstart,pstop,num=steps+1, endpoint=True)
+
+   date=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+   datet=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y-%m-%d_%H:%M")
+   datef=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y%m%d_%H")
+   dateo=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y%m%d_00")
+
+   func = np.vectorize(datetime.utcfromtimestamp)
+   t_ax=func(t)
+
+   print('nfigs',nfigs)
+
+   print(t_ax.shape)
+   print(z.shape)
+   print(var.shape)
+   print(lon)
+   print(lat)
+
+   ax={}
+   ax2={}
+   cf={}
+   cp={}
+   cb={}
+   fig={}
+   for i in range(nfigs):
+      print(i) 
+      fig[i],ax=plt.subplots(2,2,gridspec_kw={'width_ratios': [4, 1], 'height_ratios': [3,1]},constrained_layout=True)
+      #cf[i]=ax[i].contourf(t_ax,z[:,0,i,i], var[:,:,i,i].T)
+      cf[0,0]=ax[0,0].contourf(t_ax,z, var[:,:,i].T,levels=levs)
+      #plt.gca().invert_yaxis()
+
+
+      #cf[i]=ax[i].tricontourf(t,z, var[:,:,i,i], levels=14, cmap="RdBu_r")
+   
+      fig[i].set_size_inches(12,8, forward=True)
+   
+      #fig[i].tight_layout(rect=[0.02,0.05 ,1.0 ,0.95])
+
+
+
+   
+      cb[0,0] = plt.colorbar(cf[0,0],ax=ax[0,0],orientation='vertical',pad=-0.01)#, shrink=0.6)
+      #cb[0,0] = fig[i].colorbar(cf[0,0],orientation='vertical')#, shrink=0.6)
+      cb[0,0].ax.set_title('[$^{\circ}$C]')
+
+      cmap='nipy_spectral'
+      cf[0,0].set_cmap(cmap)
+
+      Day_Locator= mdates.DayLocator() 
+      Hour_Locator= mdates.HourLocator(interval=6) 
+      formatter = mdates.ConciseDateFormatter(Day_Locator)
+      minformatter = mdates.ConciseDateFormatter(Day_Locator)
+      ax[0,0].xaxis.set_minor_locator(Hour_Locator) 
+      ax[0,0].xaxis.set_major_locator(Day_Locator) 
+      #ax[0,0].xaxis.set_major_formatter(formatter)
+      #ax[0,0].xaxis.set_minor_formatter(formatter)
+   
+      ax[0,0].set_ylabel('height [m]')
+      ax[0,0].set_xticklabels([])
+      #ax[0,0].set_xlabel('time')
+      ax[0,0].grid(axis='x', color='dimgrey',which='minor', linestyle='--') 
+      ax[0,0].grid(axis='y', color='dimgrey', linestyle='--') 
+      ax[0,0].set_title('Temperature Production time '+date+' lat '+str('%.2f'%lat[i])+' lon '+str('%.2f'%lon[i]))
+
+   
+      q1,=ax[0,1].plot( var[0,:,i],z,label='00')
+      q2,=ax[0,1].plot( var[24,:,i],z,'r',label='24')
+      q3,=ax[0,1].plot( var[48,:,i],z,'y',label='48')
+      q4,=ax[0,1].plot( var[-1,:,i],z,'k',label='66')
+      ax[0,1].legend(handles=[q1,q2,q3,q4],loc='lower right', bbox_to_anchor=(1, 1),ncol=2)
+
+      #ax[0,1].set_xlim(0,5)
+      ax[0,1].set_ylim(0,z[-1])
+      ax[0,1].set_xlabel('T [$^{\circ}$C]')
+       
+      ax[0,1].grid(axis='y', color='dimgrey', linestyle='--') 
+      ax[0,1].grid(axis='x', color='dimgrey', linestyle='--') 
+      ax[0,1].set_yticklabels([])
+
+
+
+      p1,=ax[1,0].plot(t_ax, var_aux[:,i,i],'k',label='precipitation')
+
+
+      #ax[1,0].xaxis.set_minor_locator(Hour_Locator) 
+      #ax[1,0].xaxis.set_major_locator(Day_Locator) 
+      #ax[1,0].xaxis.set_major_formatter(formatter)
+      #ax[1,0].xaxis.set_minor_formatter(formatter)
+      ax[1,0].set_xlabel('time')
+      #ax[1,0].set_xlim(t_ax[0],t_ax[-1])
+      ax[1,0].set_ylim(min( np.min(var_aux[:,i,i]), np.min(var_aux2[:,i,i]))-0.5,max(np.max(var_aux[:,i,i]),np.max(var_aux2[:,i,i]))+0.5)
+      ax[1,0].set_ylabel('T 0m [$^{\circ}$C]')
+
+
+      Day_Locator= mdates.DayLocator() 
+      Hour_Locator= mdates.HourLocator(interval=6) 
+      formatter = mdates.ConciseDateFormatter(Day_Locator)
+      minformatter = mdates.ConciseDateFormatter(Day_Locator)
+      #ax[1,0].xaxis.set_minor_locator(Hour_Locator) 
+      #ax[1,0].xaxis.set_major_locator(Day_Locator) 
+      #ax[1,0].xaxis.set_major_formatter(formatter)
+      #ax[1,0].xaxis.set_minor_formatter(formatter)
+
+
+      ax[1,0].grid(axis='x', color='dimgrey',which='minor', linestyle='--') 
+      ax[1,0].grid(axis='y', color='dimgrey', linestyle='--') 
+
+      ax2 = ax[1,0].twinx()
+      p2,=ax2.plot(t_ax, var_aux2[:,i,i],'darkblue',label='cloud water')
+      ax2.set_ylabel('T 2m [$^{\circ}$C]',color='darkblue')
+      #ax2.set_ylim(0,np.max(var_aux2[:,i,i]))
+      ax2.set_ylim(min( np.min(var_aux[:,i,i]), np.min(var_aux2[:,i,i]))-0.5,max(np.max(var_aux[:,i,i]), np.max(var_aux2[:,i,i]))+0.5)
+      ax2.set_xlim(t_ax[0],t_ax[-1])
+      ##ax2.set_xticklabels([])
+      #ax2.grid(axis='y', color='cornflowerblue', linestyle='--') 
+      #ax2.yaxis.label.set_color('darkblue')
+      ax2.tick_params(axis='y', colors='darkblue')
+
+      ax2.xaxis.set_minor_locator(Hour_Locator) 
+      ax2.xaxis.set_major_locator(Day_Locator) 
+      ax2.xaxis.set_major_formatter(formatter)
+      ax2.xaxis.set_minor_formatter(formatter)
+
+      #ax2.legend(handles=[p1,p2],loc='center left', bbox_to_anchor=(1.2, 0.5))
+
+      ax[-1, -1].axis('off')
+
+
+      dirName='../../artofmelt/AromeArctic/'+dateo
+      if not os.path.exists(dirName):
+         os.makedirs(dirName)
+   
+      #fig[i].savefig('Arome_Arctic_'+str('%.2f'%lat)+'_'+str('%.2f'%lon)+'_'+long_name.replace(" ", "")+'_'+datet+'.png')
+      fig[i].savefig(dirName+'/Arome_Arctic_ZT_'+datef+'_'+str('%.2f'%lat[i])+'_'+str('%.2f'%lon[i])+'.png')
+
+      fig[i].clf()
+      plt.close(fig[i])
+
+
+
+
+
+      #subprocess.call(['rclone', 'copy', '--ignore-existing', dirName ,  'remote_box:artofmelt/'+datef[0]+'/Arome'])
+
+
+
+def plot_pointZu(t,z,var,var_aux,var_aux2,var_aux3,lat,lon,nfigs):
+
+
+   pstart=0.
+   pstop=30.
+   pstep=2.
+
+   steps=int((pstop-pstart)/pstep)
+   levs= np.linspace(pstart,pstop,num=steps+1, endpoint=True)
+
+   date=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+   datet=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y-%m-%d_%H:%M")
+   datef=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y%m%d_%H")
+   dateo=datetime.fromtimestamp(t[0],tz=timezone.utc).strftime("%Y%m%d_00")
+
+   func = np.vectorize(datetime.utcfromtimestamp)
+   t_ax=func(t)
+
+   print('nfigs',nfigs)
+
+   print(t_ax.shape)
+   print(z.shape)
+   print(var.shape)
+   print(lon)
+   print(lat)
+
+   ax={}
+   ax2={}
+   cf={}
+   cp={}
+   cb={}
+   fig={}
+   for i in range(nfigs):
+      print(i) 
+      fig[i],ax=plt.subplots(2,2,gridspec_kw={'width_ratios': [4, 1], 'height_ratios': [3,1]},constrained_layout=True)
+      #cf[i]=ax[i].contourf(t_ax,z[:,0,i,i], var[:,:,i,i].T)
+      cf[0,0]=ax[0,0].contourf(t_ax,z, var[:,:,i].T,levels=levs)
+      #plt.gca().invert_yaxis()
+
+
+      #cf[i]=ax[i].tricontourf(t,z, var[:,:,i,i], levels=14, cmap="RdBu_r")
+   
+      fig[i].set_size_inches(12,8, forward=True)
+   
+      #fig[i].tight_layout(rect=[0.02,0.05 ,1.0 ,0.95])
+
+
+
+   
+      cb[0,0] = plt.colorbar(cf[0,0],ax=ax[0,0],orientation='vertical',pad=-0.01)#, shrink=0.6)
+      #cb[0,0] = fig[i].colorbar(cf[0,0],orientation='vertical')#, shrink=0.6)
+      cb[0,0].ax.set_title('[m/s]')
+
+      cmap='nipy_spectral'
+      cf[0,0].set_cmap(cmap)
+
+      Day_Locator= mdates.DayLocator() 
+      Hour_Locator= mdates.HourLocator(interval=6) 
+      formatter = mdates.ConciseDateFormatter(Day_Locator)
+      minformatter = mdates.ConciseDateFormatter(Day_Locator)
+      ax[0,0].xaxis.set_minor_locator(Hour_Locator) 
+      ax[0,0].xaxis.set_major_locator(Day_Locator) 
+      #ax[0,0].xaxis.set_major_formatter(formatter)
+      #ax[0,0].xaxis.set_minor_formatter(formatter)
+   
+      ax[0,0].set_ylabel('height [m]')
+      ax[0,0].set_xticklabels([])
+      #ax[0,0].set_xlabel('time')
+      ax[0,0].grid(axis='x', color='dimgrey',which='minor', linestyle='--') 
+      ax[0,0].grid(axis='y', color='dimgrey', linestyle='--') 
+      ax[0,0].set_title('Wind speed Production time '+date+' lat '+str('%.2f'%lat[i])+' lon '+str('%.2f'%lon[i]))
+
+   
+      q1,=ax[0,1].plot( var_aux[0,:,i],z,label='00')
+      q2,=ax[0,1].plot( var_aux[24,:,i],z,'r',label='24')
+      q3,=ax[0,1].plot( var_aux[48,:,i],z,'y',label='48')
+      q4,=ax[0,1].plot( var_aux[-1,:,i],z,'k',label='66')
+      ax[0,1].legend(handles=[q1,q2,q3,q4],loc='lower right', bbox_to_anchor=(1, 1),ncol=2)
+
+      ax[0,1].set_xlim(0,360)
+      ax[0,1].set_ylim(0,z[-1])
+      ax[0,1].set_xlabel('WD')
+      ax[0,1].set_xticks([0,90,180,270,360])
+      ax[0,1].set_xticklabels(['N','E','S','W','N'])      
+
+
+ 
+      ax[0,1].grid(axis='y', color='dimgrey', linestyle='--') 
+      ax[0,1].grid(axis='x', color='dimgrey', linestyle='--') 
+      ax[0,1].set_yticklabels([])
+
+      p1,=ax[1,0].plot(t_ax, var_aux2[:,i,i],'k',label='precipitation')
+
+
+      #ax[1,0].xaxis.set_minor_locator(Hour_Locator) 
+      #ax[1,0].xaxis.set_major_locator(Day_Locator) 
+      #ax[1,0].xaxis.set_major_formatter(formatter)
+      #ax[1,0].xaxis.set_minor_formatter(formatter)
+      ax[1,0].set_xlabel('time')
+      #ax[1,0].set_xlim(t_ax[0],t_ax[-1])
+      ax[1,0].set_ylim(0,np.max(var_aux2[:,i,i]))
+      ax[1,0].set_ylabel('wind speed 10m [m/s]')
+
+
+      Day_Locator= mdates.DayLocator() 
+      Hour_Locator= mdates.HourLocator(interval=6) 
+      formatter = mdates.ConciseDateFormatter(Day_Locator)
+      minformatter = mdates.ConciseDateFormatter(Day_Locator)
+      #ax[1,0].xaxis.set_minor_locator(Hour_Locator) 
+      #ax[1,0].xaxis.set_major_locator(Day_Locator) 
+      #ax[1,0].xaxis.set_major_formatter(formatter)
+      #ax[1,0].xaxis.set_minor_formatter(formatter)
+
+
+      ax[1,0].grid(axis='x', color='dimgrey',which='minor', linestyle='--') 
+      ax[1,0].grid(axis='y', color='dimgrey', linestyle='--') 
+
+      ax2 = ax[1,0].twinx()
+      p2,=ax2.plot(t_ax, var_aux3[:,i,i],'darkblue',label='cloud water')
+      ax2.set_ylabel('WD 10m',color='darkblue')
+      ax2.set_ylim(0,360)
+      ax2.set_yticks([0,90,180,270,360])
+      ax2.set_yticklabels(['N','E','S','W','N'])      
+      ax2.set_xlim(t_ax[0],t_ax[-1])
+      ##ax2.set_xticklabels([])
+      ax2.grid(axis='y', color='cornflowerblue', linestyle='--') 
+      #ax2.yaxis.label.set_color('darkblue')
+      ax2.tick_params(axis='y', colors='darkblue')
+
+      ax2.xaxis.set_minor_locator(Hour_Locator) 
+      ax2.xaxis.set_major_locator(Day_Locator) 
+      ax2.xaxis.set_major_formatter(formatter)
+      ax2.xaxis.set_minor_formatter(formatter)
+
+      #ax2.legend(handles=[p1,p2],loc='center left', bbox_to_anchor=(1.2, 0.5))
+
+      ax[-1, -1].axis('off')
+
+
+      dirName='../../artofmelt/AromeArctic/'+dateo
+      if not os.path.exists(dirName):
+         os.makedirs(dirName)
+
+   
+      #fig[i].savefig('Arome_Arctic_'+str('%.2f'%lat)+'_'+str('%.2f'%lon)+'_'+long_name.replace(" ", "")+'_'+datet+'.png')
+      fig[i].savefig(dirName+'/Arome_Arctic_Zwind_'+datef+'_'+str('%.2f'%lat[i])+'_'+str('%.2f'%lon[i])+'.png')
+
+      fig[i].clf()
+      plt.close(fig[i])
+
+
+
+
+
+
+
+      #subprocess.call(['rclone', 'copy', '--ignore-existing', dirName ,  'remote_box:artofmelt/'+datef[0]+'/Arome'])
+
+
+
 
 
 

@@ -7,6 +7,7 @@ from aaf_func import *
 from aaf_usersettings import *
 import fnmatch
 import time
+import os
 
 def load_catalog():
    #os.rename('catalog.xml','catalog_old.xml')
@@ -37,13 +38,13 @@ def plotPrep(dods_file):#,forecasts,forecast_length):
    filename = "https://thredds.met.no/thredds/dodsC/"+dods_file
    #filename = "https://thredds.met.no/thredds/dodsC/metpparchive/2021/08/01/met_analysis_1_0km_nordic_20210801T12Z.nc"
    #filename = "https://thredds.met.no/thredds/dodsC/aromearcticlatest/archive/arome_arctic_det_2_5km_20230301T09Z.nc"
-   #filename = "../arome_arctic_det_2_5km_20230301T09Z.nc"
+   filename = "../arome_arctic_det_2_5km_20230301T09Z.nc"
 
    # Prepare forecast maps 
    #MapPrep(filename)
 
    # Prepare point forecast
-   #PointPrep(filename)
+   PointPrepZ(filename)
  
    # Prepare forecast maps 
    #Plot T850hPa and Z500hPa with ice edge
@@ -107,10 +108,11 @@ def main():
 
                old_time=update_time
                now=datetime.now()
-               time.sleep(10)
+               time.sleep(300)
 
          else:
-            time.sleep(10)
+            time.sleep(1800)  #30min
+            #time.sleep(5)  #30min
    except KeyboardInterrupt:
       print('interrupted!')
 
@@ -136,8 +138,8 @@ def main_dev_plot_test():
 if __name__ == "__main__":
   
    # calling main function
-   main()
-   #main_dev_plot_test()
+   #main()
+   main_dev_plot_test()
 
 
 
