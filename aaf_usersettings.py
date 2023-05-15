@@ -8,7 +8,7 @@ def ForecastSettings():
    url='https://thredds.met.no/thredds/catalog/aromearcticlatest/archive/catalog.xml'
 
    # Number of forecast to display in addition to anlaysis
-   forecasts=11
+   forecasts=2
 
    # forecast interval length in hours
    forecast_length=6
@@ -26,8 +26,7 @@ def ForecastPointPosition():
    position= [15, 78]
    positiond= {("point1","lat"):15,("point2","lat"): 11.53,
                ("point1","lon"):78,("point2","lon"): 78.54  }
-   positiond2 = { 'Oden':     {'lat': 78.91, 'lon':7.70    },
-                  'Oden2':    {'lat': 79.75, 'lon':4.68    },
+   positiond2 = { 'Oden':    {'lat': 79.72, 'lon':1.98    },
                   'zeppelin': {'lat': 78.54, 'lon': 11.53}}
 
    return position,positiond2
@@ -77,9 +76,9 @@ def VariableListPrecMap():
 
 def FetchTime():
     # provide fetch time interval in 24h format
-    BeginHour=10
-    BeginMin =0
-    EndHour  =10
-    EndMin   =59
+    BeginHour=11
+    BeginMin =45
+    EndHour  =BeginHour+1
+    EndMin   =BeginMin
   
     return BeginHour,BeginMin,EndHour,EndMin

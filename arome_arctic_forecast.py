@@ -50,10 +50,13 @@ def plotPrep(dods_file):#,forecasts,forecast_length):
    #Plot T850hPa and Z500hPa with ice edge
    TZPrep(filename,Tpl=850,Zpl=500)
    #Plot T lowest model level and MSLP with ice edge
+   print('ml')
    TZPrep(filename,Tml=65,Psl=1)
    #Plot precipitable water and MSLP with ice edge
+   print('lw')
    TZPrep(filename,lwe=1,Psl=1)
    #Plot accumulated precipitation and MSLP with ice edge
+   print('prec')
    TZPrep(filename,prec=1,Psl=1)
  
       
@@ -119,7 +122,6 @@ def main():
 
 
 
-
 def main_dev_plot_test():
 
    # Fetch user settings 
@@ -138,8 +140,8 @@ def main_dev_plot_test():
 if __name__ == "__main__":
   
    # calling main function
-   #main()
-   main_dev_plot_test()
+   main()
+   #main_dev_plot_test()
 
 
 
