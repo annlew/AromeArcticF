@@ -1,6 +1,7 @@
 import numpy as np
 from datetime import datetime,timezone
-
+from aaf_func import *
+import os
 
 def ForecastSettings():
 
@@ -24,12 +25,24 @@ def ForecastPointPosition():
 
            # lon  lat
    position= [15, 78]
-   positiond= {("point1","lat"):15,("point2","lat"): 11.53,
-               ("point1","lon"):78,("point2","lon"): 78.54  }
-   positiond2 = { 'Oden':    {'lat': 79.72, 'lon':1.98    },
-                  'zeppelin': {'lat': 78.54, 'lon': 11.53}}
+   positiond2 = { 'Oden':         {'lat': 79.72, 'lon':1.98  },
+                  'Longyearbyen': {'lat': 78.13, 'lon': 15.38}}
+
+   if os.path.isfile('Odenloc.txt'):
+      print ('Oden location exists')
+      lat,lon=ReadLoc('Odenloc.txt')
+      positiond2['Oden']['lat']=float(lat[0])
+      positiond2['Oden']['lon']=float(lon[0])
+   if os.path.isfile('Extraloc.txt'):
+      print ('Extra locations exists')
+      lat,lon=ReadLoc('Extraloc.txt')
+      for loc in range(len(lat)):
+         newpos= {str(loc+1): {'lat': float(lat[loc]), 'lon':float(lon[loc])  }}
+         print(newpos)
+         positiond2.update(newpos)
 
    return position,positiond2
+
 
 # Variable lists for plots
 
@@ -76,8 +89,8 @@ def VariableListPrecMap():
 
 def FetchTime():
     # provide fetch time interval in 24h format
-    BeginHour=11
-    BeginMin =45
+    BeginHour=9
+    BeginMin =15
     EndHour  =BeginHour+1
     EndMin   =BeginMin
   

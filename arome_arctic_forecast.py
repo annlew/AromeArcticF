@@ -5,6 +5,7 @@ from datetime import datetime,timezone
 from aaf_xml_mod import *
 from aaf_func import *
 from aaf_usersettings import *
+from aaf_plotInterface import *
 import fnmatch
 import time
 import os
@@ -35,10 +36,13 @@ def parseXML(xmlfile):
 
 def plotPrep(dods_file):#,forecasts,forecast_length):
 
+   # Fetch Oden location from Linus' ftp  
+   fetchOden()  
+
    filename = "https://thredds.met.no/thredds/dodsC/"+dods_file
    #filename = "https://thredds.met.no/thredds/dodsC/metpparchive/2021/08/01/met_analysis_1_0km_nordic_20210801T12Z.nc"
    #filename = "https://thredds.met.no/thredds/dodsC/aromearcticlatest/archive/arome_arctic_det_2_5km_20230301T09Z.nc"
-   filename = "../arome_arctic_det_2_5km_20230301T09Z.nc"
+   #filename = "../arome_arctic_det_2_5km_20230301T09Z.nc"
 
    # Prepare forecast maps 
    #MapPrep(filename)
