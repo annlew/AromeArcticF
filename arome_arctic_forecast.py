@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 import requests
 import numpy as np
-from datetime import datetime,timezone
+from datetime import datetime,timezone,timedelta
 from aaf_xml_mod import *
 from aaf_func import *
 from aaf_usersettings import *
@@ -9,6 +9,7 @@ from aaf_plotInterface import *
 import fnmatch
 import time
 import os
+import sys
 
 def load_catalog():
    #os.rename('catalog.xml','catalog_old.xml')
@@ -40,7 +41,6 @@ def plotPrep(dods_file):#,forecasts,forecast_length):
    fetchOden()  
 
    filename = "https://thredds.met.no/thredds/dodsC/"+dods_file
-   #filename = "https://thredds.met.no/thredds/dodsC/metpparchive/2021/08/01/met_analysis_1_0km_nordic_20210801T12Z.nc"
    #filename = "https://thredds.met.no/thredds/dodsC/aromearcticlatest/archive/arome_arctic_det_2_5km_20230301T09Z.nc"
    #filename = "../arome_arctic_det_2_5km_20230301T09Z.nc"
 
@@ -68,7 +68,7 @@ def plotPrep(dods_file):#,forecasts,forecast_length):
 
 
 
-def main():
+def main(when='later'):
 
    # Fetch user settings 
    BeginHour,BeginMin,EndHour,EndMin = FetchTime()
@@ -76,15 +76,20 @@ def main():
 
    old_time='2023-03-03T10:06:33Z'
    old_time=''
-
  
    try:
       while True:
 
          update=True
          now=datetime.now()
-         interval_start=todayAt(BeginHour,min=BeginMin)
-         interval_stop =todayAt(EndHour,min=EndMin)
+
+         if when=='now':
+            interval_start=datetime.now()-timedelta(minutes = 10)
+            interval_stop=datetime.now()+timedelta(minutes = 10)
+         else:
+            interval_start=todayAt(BeginHour,min=BeginMin)
+            interval_stop =todayAt(EndHour,min=EndMin)
+
 
          # just for printing
          current_time = now.strftime("%H:%M:%S")
@@ -126,26 +131,20 @@ def main():
 
 
 
-def main_dev_plot_test():
-
-   # Fetch user settings 
-   #forecasts, forecast_length = ForecastSettings()
-
-   # Load the latest catalogue 
-   #load_catalog()
-
-   # Parse xml file and fetch filename for OPeNDAP
-   forecast_file,update_time = parseXML('catalog.xml')
-
-   # Plot field
-   plotPrep(forecast_file)#,forecasts,forecast_length)
 
 
 if __name__ == "__main__":
   
    # calling main function
-   main()
-   #main_dev_plot_test()
+   if len(sys.argv)>1:
+      print ((sys.argv[1]))
+      if sys.argv[1]=='now':
+         main(sys.argv[1])
+      else: 
+         print('not recognised argument, try "now"')
+   else:
+      print ('Run later')
+      main()
 
 
 

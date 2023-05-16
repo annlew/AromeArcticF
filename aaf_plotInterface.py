@@ -122,7 +122,6 @@ def PointPrepZ(ncfileName):
 
    # Fetch point forecast loaction from user definition
    [lon,lat],posd = ForecastPointPosition()
-   #print(ForecastPointPosition())
 
    # constants
    maxIdx=35#60
@@ -140,12 +139,8 @@ def PointPrepZ(ncfileName):
    cap       = ncfile.variables["ap"][:]
    cb        = ncfile.variables["b"][:]
 
-   #y_idx, x_idx= PointIdx(lat,lon,latitudes,longitudes)
 
-
-   #print (y_idx,x_idx )
-
-   print (len(posd))
+   #print (len(posd))
 
    ytest = np.empty(len(posd),dtype=int)
    xtest = np.empty(len(posd),dtype=int)
@@ -274,7 +269,7 @@ def PointPrepZ(ncfileName):
    # Call plot function
    plot_pointZ(time,zv,qv[:,:,:],       prec,cwm,      latitudes[ytest,xtest],longitudes[ytest,xtest],len(posd),field='q' )
    plot_pointZ(time,zv,tv[:,:,:]-273.15,T0,  T2,       latitudes[ytest,xtest],longitudes[ytest,xtest],len(posd),field='t' )
-   plot_pointZ(time,zv,wsv[:,:,:],   ws10,wd10,latitudes[ytest,xtest],longitudes[ytest,xtest],len(posd),field='wind',var_aux3=wdv)
+   plot_pointZ(time,zv,wsv[:,:,:],ws10,wd10,latitudes[ytest,xtest],longitudes[ytest,xtest],len(posd),field='wind',var_aux3=wdv)
 
    # detele variables
    del qv,tv,wsv,wdv 

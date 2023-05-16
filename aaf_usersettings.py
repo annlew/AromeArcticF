@@ -9,7 +9,7 @@ def ForecastSettings():
    url='https://thredds.met.no/thredds/catalog/aromearcticlatest/archive/catalog.xml'
 
    # Number of forecast to display in addition to anlaysis
-   forecasts=2
+   forecasts=11
 
    # forecast interval length in hours
    forecast_length=6
@@ -25,16 +25,17 @@ def ForecastPointPosition():
 
            # lon  lat
    position= [15, 78]
-   positiond2 = { 'Oden':         {'lat': 79.72, 'lon':1.98  },
+   positiond2 = { 'Oden':         {'lat': 79.72, 'lon':1.98  }, # deafault position, overwritten if Odenloc.txt exists
                   'Longyearbyen': {'lat': 78.13, 'lon': 15.38}}
 
+   # Read position for point forecast from files if files exist
    if os.path.isfile('Odenloc.txt'):
       print ('Oden location exists')
       lat,lon=ReadLoc('Odenloc.txt')
       positiond2['Oden']['lat']=float(lat[0])
       positiond2['Oden']['lon']=float(lon[0])
    if os.path.isfile('Extraloc.txt'):
-      print ('Extra locations exists')
+      print ('Extra locations exist')
       lat,lon=ReadLoc('Extraloc.txt')
       for loc in range(len(lat)):
          newpos= {str(loc+1): {'lat': float(lat[loc]), 'lon':float(lon[loc])  }}
@@ -90,7 +91,7 @@ def VariableListPrecMap():
 def FetchTime():
     # provide fetch time interval in 24h format
     BeginHour=9
-    BeginMin =15
+    BeginMin =5
     EndHour  =BeginHour+1
     EndMin   =BeginMin
   

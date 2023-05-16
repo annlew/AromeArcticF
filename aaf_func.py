@@ -52,27 +52,26 @@ def ReadLoc(filename):
    return lat,lon
 
 
-
-
-
-
-
-
-
 def fetchOden():
 
    filename = "Odenloc.txt"
    nnetrc = netrc.netrc()
    remoteHostName = "bolftp.ecmwf.int"
    authTokens = nnetrc.authenticators(remoteHostName)
-   # Print the access tokens
-   #print("Remote Host Name:%s" % (remoteHostName))
-   ftp_server = ftplib.FTP(remoteHostName, authTokens[0],authTokens[2])
-   ftp_server.cwd('/artofmelt/') 
-   # Write file in binary mode
-   with open(filename, "wb") as file:
-     # Command for Downloading the file "RETR filename"
-     ftp_server.retrbinary(f"RETR {filename}", file.write)
-   ftp_server.quit()
+
+   if authTokens:
+      print('token exists for bolftp.ecmwf.int, fetching Oden location')
+      # Print the access tokens
+      #print("Remote Host Name:%s" % (remoteHostName))
+      ftp_server = ftplib.FTP(remoteHostName, authTokens[0],authTokens[2])
+      ftp_server.cwd('/artofmelt/') 
+      # Write file in binary mode
+      with open(filename, "wb") as file:
+        # Command for Downloading the file "RETR filename"
+        ftp_server.retrbinary(f"RETR {filename}", file.write)
+      ftp_server.quit()
+   else:
+      print('token for bolftp.ecmwf.int does not exist')
+      print('update ~/.netrc with credentials to download Odenloc.txt')
 
 
